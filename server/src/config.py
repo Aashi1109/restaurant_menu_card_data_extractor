@@ -2,6 +2,8 @@ import os
 
 from dotenv.main import load_dotenv, dotenv_values
 
+from server.src.logger import logger
+
 # Get the directory of the current file (config.py)
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -13,3 +15,12 @@ config = {
     **dotenv_values(env_path),
     **os.environ,  # override loaded values with environment variables
 }
+
+try:
+    GOOGLE_CSE_ID = "e74ae2f61bea249ef"
+    GOOGLE_API_KEY = "AIzaSyDYgOOODO_MHGrV28sIRPdrQ9GIaZlX4dU"
+    TESSERACT_EXECUTABLE_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    LOG_LEVEL = "INFO"
+    LOG_PATH = os.path.join(base_dir, "logs")
+except Exception as e:
+    logger.error("Failed to load env variables", str(e), exc_info=True)
