@@ -1,4 +1,4 @@
-from src.exceptions import CustomError
+from server.src.exceptions.CustomError import CustomError
 
 
 class NotFoundError(CustomError):

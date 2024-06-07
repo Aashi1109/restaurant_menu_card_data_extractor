@@ -20,6 +20,9 @@ try:
     TESSERACT_EXECUTABLE_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     LOG_LEVEL = "INFO"
     LOG_PATH = os.path.join(base_dir, "logs")
+    TEMP_FOLDER_PATH = "/home/cerelabs/workarea/Aashish/PythonProjects/restaurant_menu_card_data_extractor/temp"
+    SQLALCHEMY_DATABASE_URL = ("sqlite:////home/cerelabs/workarea/Aashish/PythonProjects"
+                               "/restaurant_menu_card_data_extractor/server/src/tasks.db")
 except Exception as e:
     print("Exception in loading variables", e)
     raise

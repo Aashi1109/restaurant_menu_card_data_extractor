@@ -71,18 +71,6 @@ def google_image_search_using_selenium(query: str, num_images: int):
 
 def save_images_from_url(images_url: list[str], temp_folder_path: str):
     try:
-        # images_url = [
-        #     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjuQKlsvrlg4V3tENCWaJXejnxGn_vmd-4JA&s"
-        #     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdJePsygmChsWDEHXKVprnJoYIQVdL9Q23Sg&s",
-        #     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbhzzxjpkPMYC9APqyWhMhbWrXlXVXczuIog&s",
-        #     "https://media-cdn.tripadvisor.com/media/photo-s/05/33/03/88/britannia-co.jpg",
-        #     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCGPLi_jUygVY-VVyeP1_OYljMV3fqsZkNJA&s",
-        #     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAJNFoToc6C_PNE0LkIOEPKWl8_8fiX3Nq3A&s",
-        #     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxVReKWpfOgTlrVex52WkoF83C8LWJuxYfJQ&s",
-        #     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvBnP8j72bR2PpQUzCXmV81LcZenMVYJfGGg&s",
-        #     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiMeU9yW_68-E9co3DaR8bEaX_gXbLtmBIHQ&s",
-        # ]
-
         file_saved_paths = []
         for image_url in images_url:
             file_saved_path = save_image_from_url(image_url, temp_folder_path)
@@ -157,16 +145,20 @@ def google_search_using_cse_papi(search_query: str, max_links: int, start: int =
         # If we haven't collected enough links, make another recursive call
         if len(collected_links) < max_links:
             next_start = start + results_to_fetch
-            return google_search_using_cse_papi(search_query, max_links, start=next_start,
-                                                collected_links=collected_links)
+            return google_search_using_cse_papi(
+                search_query, max_links, start=next_start,
+                collected_links=collected_links
+            )
 
         return collected_links
     except Exception as e:
         print(f"An error occurred: {e}")
         raise
 
-
-print(save_images_from_url(
-    ["https://preview.redd.it/z909ykr8s1sb1.jpg?auto=webp&s=bc4b62ee2c1df5f181edcdb6fffa9ff99f6dd8ea"],
-    r"/temp"))
+# print(
+#     save_images_from_url(
+#         ["https://preview.redd.it/z909ykr8s1sb1.jpg?auto=webp&s=bc4b62ee2c1df5f181edcdb6fffa9ff99f6dd8ea"],
+#         r"/temp"
+#     )
+# )
 # print(google_search_using_cse_papi("mumbai restaurant menu card", 20))

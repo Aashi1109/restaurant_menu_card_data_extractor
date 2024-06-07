@@ -13,3 +13,13 @@ class Task(Base):
     status = Column(Enum(TaskStatus), default=TaskStatus.InProgress, nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "scrap_query": self.scrap_query,
+            "scrap_data": self.scrap_data,
+            "status": self.status.value,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }

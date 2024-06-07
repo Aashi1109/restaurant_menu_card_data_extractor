@@ -1,3 +1,4 @@
+import json
 import logging.handlers
 import os
 
@@ -20,11 +21,28 @@ log_file_path = os.path.join(LOG_PATH, log_file)
 # The file handler will append to the file if it already exists
 file_handler = logging.FileHandler(log_file_path, mode='a')
 
-# Create a formatter to specify the log format
-formatter = logging.Formatter(
-    '{"asctime": "%(asctime)s", "service": "%(funcName)s", "levelname": "%(levelname)s", "message": "%(message)s", '
-    '"detail": "[%(funcName)s:%(lineno)d]"}'
-)
+
+# Custom formatter to handle exception details in JSON format
+class JsonFormatter(logging.Formatter):
+    def format(self, record):
+        log_record = {
+            "asctime": self.formatTime(record, self.datefmt),
+            "levelname": record.levelname,
+            "service": record.funcName,
+            "message": record.getMessage(),
+            "detail": f"[{record.funcName}:{record.lineno}]"
+        }
+
+        # Check if the log record contains exception information
+        if record.exc_info:
+            exc_info = self.formatException(record.exc_info)
+            log_record["message"] = exc_info.replace("\n", " ").replace('"', "'")  # Format exception to a single line
+
+        return json.dumps(log_record)
+
+
+# Create and set the custom formatter
+formatter = JsonFormatter()
 
 # Attach the formatter to the file handler
 file_handler.setFormatter(formatter)

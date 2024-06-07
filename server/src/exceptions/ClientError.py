@@ -1,4 +1,4 @@
-from src.exceptions.CustomError import CustomError
+from server.src.exceptions.CustomError import CustomError
 
 
 class ClientError(CustomError):
