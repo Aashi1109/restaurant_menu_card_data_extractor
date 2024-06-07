@@ -1,7 +1,7 @@
 import logging.handlers
 import os
 
-from src.config import LOG_LEVEL, LOG_PATH
+from server.src.config import LOG_LEVEL, LOG_PATH
 
 # Define the log file name
 log_file = "application.log"

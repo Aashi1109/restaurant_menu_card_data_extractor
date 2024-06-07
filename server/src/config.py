@@ -2,8 +2,6 @@ import os
 
 from dotenv.main import load_dotenv, dotenv_values
 
-from server.src.logger import logger
-
 # Get the directory of the current file (config.py)
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,4 +21,5 @@ try:
     LOG_LEVEL = "INFO"
     LOG_PATH = os.path.join(base_dir, "logs")
 except Exception as e:
-    logger.error("Failed to load env variables", str(e), exc_info=True)
+    print("Exception in loading variables", e)
+    raise
