@@ -1,6 +1,6 @@
 from celery import Celery
 
-from server.src.config import TEMP_FOLDER_PATH
+from server.src.config import TEMP_FOLDER_PATH, CELERY_BACKEND, CELERY_BROKER
 from server.src.database import get_db
 from server.src.logger import logger
 from server.src.ocr.ocr import perform_ocr
@@ -14,8 +14,21 @@ from server.src.scrap.utils import filter_cse_images_results
 
 app = Celery(
     "ImageProcessTask",
-    broker='redis://10.10.1.63:6379/0',
-    backend='redis://10.10.1.63:6379/0'
+    broker=CELERY_BROKER,
+    backend=CELERY_BACKEND
+)
+
+# Configure Celery to use the existing logger
+app.conf.update(
+    worker_hijack_root_logger=False,  # Prevent Celery from hijacking the root logger
+    worker_log_format="%(message)s",
+    worker_task_log_format="%(task_name)s: %(message)s",
+)
+
+# Ensure the logger configuration is passed to the workers
+app.conf.update(
+    worker_redirect_stdouts_level='INFO',
+    worker_log_color=False,
 )
 
 

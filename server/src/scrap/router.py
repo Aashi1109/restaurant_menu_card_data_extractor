@@ -4,16 +4,18 @@ from starlette.requests import Request
 
 from server.src.database import get_db
 from server.src.logger import logger
-from server.src.scrap.crud import create_task, get_task_by_id
-from server.src.scrap.schemas import ScrapSubmitRequest, ScrapResponse
+from server.src.scrap.crud import create_task, get_task_by_id, get_all_tasks
+from server.src.scrap.schemas import ScrapSubmitRequest, ScrapResponse, ScrapAllTasksResponse
 from server.src.worker import scrap_save_search_results_worker
 
 router = APIRouter()
 
 
-@router.post("/scrap/submit", response_model=ScrapResponse)
-async def create_new_scrap(_data: ScrapSubmitRequest, db: Session = Depends(get_db)):
+@router.post("/scrap/new", response_model=ScrapResponse)
+async def create_new_scrap(req: Request, _data: ScrapSubmitRequest, db: Session = Depends(get_db)):
     try:
+        logger.info(f"Request received url: {str(req.url)}, req body: {str(_data.model_dump())}")
+
         # create new entry in task table and return that entry to user
         create_task_result = create_task(db, _data.query)
 
@@ -34,7 +36,7 @@ async def create_new_scrap(_data: ScrapSubmitRequest, db: Session = Depends(get_
         logger.error(f"Error submitting data {e}", exc_info=True)
 
 
-@router.get("/scrap/status/{task_id}", response_model=ScrapResponse)
+@router.get("/scrap/{task_id}", response_model=ScrapResponse)
 async def get_scrap_status(req: Request, task_id: int, db: Session = Depends(get_db)):
     try:
         logger.info(f"Request received url: {str(req.url)}, req body: {str(req.query_params)}")
@@ -45,6 +47,23 @@ async def get_scrap_status(req: Request, task_id: int, db: Session = Depends(get
 
         return ScrapResponse(
             success=True, message="Task found", data={"status": existing_task.status, "task": existing_task.to_dict()}
+        )
+
+    except Exception as e:
+        logger.error(f"Error submitting data {e}", exc_info=True)
+
+
+@router.get("/scrap/tasks", response_model=ScrapAllTasksResponse)
+async def get_all_tasks_handler(req: Request, db: Session = Depends(get_db)):
+    try:
+        logger.info(f"Request received url: {str(req.url)}")
+
+        tasks = get_all_tasks(db)
+        if not tasks:
+            return ScrapAllTasksResponse(success=False, message="No task found", data=[])
+
+        return ScrapAllTasksResponse(
+            success=True, message="Tasks found", data=tasks
         )
 
     except Exception as e:

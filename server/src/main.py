@@ -54,4 +54,5 @@ class FastAPIServer:
 
 if __name__ == '__main__':
     fastapi_server = FastAPIServer()
-    fastapi_server.run("0.0.0.0", 3000)
+    fastapi_server.run("localhost", 5000)
+    logger.info("Server running ⚡⚡ at port 5000")
