@@ -25,10 +25,15 @@ file_handler = logging.FileHandler(log_file_path, mode='a')
 # Custom formatter to handle exception details in JSON format
 class JsonFormatter(logging.Formatter):
     def format(self, record):
+        if record.funcName == '<module>':
+            service_name = os.path.basename(record.pathname)
+        else:
+            service_name = record.funcName
+
         log_record = {
             "asctime": self.formatTime(record, self.datefmt),
             "levelname": record.levelname,
-            "service": record.funcName,
+            "service": service_name,
             "message": record.getMessage(),
             "detail": f"[{record.funcName}:{record.lineno}]"
         }
@@ -36,7 +41,9 @@ class JsonFormatter(logging.Formatter):
         # Check if the log record contains exception information
         if record.exc_info:
             exc_info = self.formatException(record.exc_info)
-            log_record["message"] = exc_info.replace("\n", " ").replace('"', "'")  # Format exception to a single line
+            log_record["message"] = exc_info.replace("\n", " ").replace('"', "'").replace(
+                "^", ""
+            )  # Format exception to a single line
 
         return json.dumps(log_record)
 

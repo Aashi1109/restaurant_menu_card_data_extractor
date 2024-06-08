@@ -1,6 +1,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { ETaskStatus } from "@/enums";
+import { cn } from "@/lib/utils";
 
 const TaskStatusBadge = ({
   status,
@@ -19,7 +20,18 @@ const TaskStatusBadge = ({
       badgeVariant = "destructive";
       break;
   }
-  return <Badge variant={badgeVariant}>{text}</Badge>;
+  return (
+    <Badge variant={badgeVariant}>
+      {text}
+      <div
+        className={cn("ml-2 top-[-14px] right-[-10px] w-2 h-2 rounded-full", {
+          "bg-orange-300 animate-pulse": status === ETaskStatus.InProgress,
+          "bg-green-600 dark:bg-green-400": status === ETaskStatus.Completed,
+          "bg-red-300": status === ETaskStatus.Failed,
+        })}
+      />
+    </Badge>
+  );
 };
 
 export default TaskStatusBadge;

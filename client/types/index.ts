@@ -2,7 +2,7 @@ import { ETaskStatus } from "@/enums";
 
 export interface ITask {
   id: number;
-  query: string;
+  scrap_query: string;
   status: ETaskStatus;
 }
 

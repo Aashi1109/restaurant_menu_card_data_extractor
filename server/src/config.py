@@ -22,8 +22,8 @@ try:
     LOG_PATH = os.path.join(base_dir, "logs")
     TEMP_FOLDER_PATH = r"D:\Coding\internship\image_scrapper\temp"
     SQLALCHEMY_DATABASE_URL = r"sqlite:///D:\Coding\internship\image_scrapper\server\src\tasks.db"
-    CELERY_BACKEND = 'redis://localhost:6379/0'
-    CELERY_BROKER = 'redis://localhost:6379/0'
+    CELERY_BACKEND = 'redis://10.10.1.63:6379/0'
+    CELERY_BROKER = 'redis://10.10.1.63:6379/0'
 except Exception as e:
     print("Exception in loading variables", e)
     raise

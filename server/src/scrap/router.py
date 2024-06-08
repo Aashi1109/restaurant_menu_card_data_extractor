@@ -23,13 +23,32 @@ async def create_new_scrap(req: Request, _data: ScrapSubmitRequest, db: Session 
             raise Exception("Failed to create task entry")
 
         # call celery background task manager to handle tasks
-        scrap_save_search_results_worker.delay(
+        scrap_save_search_results_worker.s(
             _data.query, _data.max_links, _data.use_cse_papi,
             {"request": _data.__repr__(), "db": create_task_result.to_dict()}
-        )
+        ).apply_async()
 
         return ScrapResponse(
             success=True, message="Scrap task created successfully", data={"task_id": create_task_result.id}
+        )
+
+    except Exception as e:
+        logger.error(f"Error submitting data {e}", exc_info=True)
+
+
+@router.get("/scrap/tasks", response_model=ScrapAllTasksResponse)
+async def get_all_tasks_handler(req: Request, db: Session = Depends(get_db)):
+    try:
+        logger.info(f"Request received url: {str(req.url)}")
+
+        tasks = get_all_tasks(db)
+
+        if not tasks:
+            return ScrapAllTasksResponse(success=False, message="No task found", data=[])
+        tasks = [task.to_dict() for task in tasks]
+
+        return ScrapAllTasksResponse(
+            success=True, message="Tasks found", data=tasks
         )
 
     except Exception as e:
@@ -47,23 +66,6 @@ async def get_scrap_status(req: Request, task_id: int, db: Session = Depends(get
 
         return ScrapResponse(
             success=True, message="Task found", data={"status": existing_task.status, "task": existing_task.to_dict()}
-        )
-
-    except Exception as e:
-        logger.error(f"Error submitting data {e}", exc_info=True)
-
-
-@router.get("/scrap/tasks", response_model=ScrapAllTasksResponse)
-async def get_all_tasks_handler(req: Request, db: Session = Depends(get_db)):
-    try:
-        logger.info(f"Request received url: {str(req.url)}")
-
-        tasks = get_all_tasks(db)
-        if not tasks:
-            return ScrapAllTasksResponse(success=False, message="No task found", data=[])
-
-        return ScrapAllTasksResponse(
-            success=True, message="Tasks found", data=tasks
         )
 
     except Exception as e:

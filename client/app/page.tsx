@@ -3,9 +3,10 @@ import { retryPromise } from "@/lib/helpers";
 import { fetchTasks } from "@/action";
 import { ITaskAllResponses } from "@/types";
 import Tasks from "@/components/Tasks";
+import { jnstrparse } from "@/lib/utils";
 
 export default async function Home() {
-  const taskData: ITaskAllResponses = await retryPromise(fetchTasks());
+  const parsedTaskData = await fetchTasks();
 
   // const tasks = [
   //   {
@@ -29,8 +30,9 @@ export default async function Home() {
   //     status: ETaskStatus.Completed,
   //   },
   // ];
+  // console.log("parsedTaskData ->", parsedTaskData);
 
-  const isTaskDataPresent = taskData && taskData.success;
+  const isTaskDataPresent = parsedTaskData && parsedTaskData?.success;
 
   return (
     <div className={"flex h-full w-full flex-col flex-1"}>
@@ -38,7 +40,7 @@ export default async function Home() {
       <ScrapForm isTasksPresent={isTaskDataPresent} />
 
       {/* task results */}
-      <Tasks tasks={taskData.data} />
+      {isTaskDataPresent && <Tasks tasks={parsedTaskData?.data} />}
     </div>
   );
 }

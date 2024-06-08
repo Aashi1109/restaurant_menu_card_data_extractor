@@ -14,7 +14,7 @@ custom_config = "--oem 3 --psm 6"
 
 def perform_ocr(image_path: str):
     try:
-        if not os.path.exists(image_path):
+        if not (image_path and os.path.exists(image_path)):
             return ""
         else:
             image = cv2.imread(image_path)

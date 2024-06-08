@@ -1,4 +1,5 @@
 from celery import Celery
+from celery.signals import after_setup_logger
 
 from server.src.config import TEMP_FOLDER_PATH, CELERY_BACKEND, CELERY_BROKER
 from server.src.database import get_db
@@ -12,27 +13,34 @@ from server.src.scrap.helpers import (
 )
 from server.src.scrap.utils import filter_cse_images_results
 
-app = Celery(
-    "ImageProcessTask",
+celery_app = Celery(
+    __name__,
     broker=CELERY_BROKER,
     backend=CELERY_BACKEND
 )
 
-# Configure Celery to use the existing logger
-app.conf.update(
-    worker_hijack_root_logger=False,  # Prevent Celery from hijacking the root logger
-    worker_log_format="%(message)s",
-    worker_task_log_format="%(task_name)s: %(message)s",
-)
-
-# Ensure the logger configuration is passed to the workers
-app.conf.update(
-    worker_redirect_stdouts_level='INFO',
-    worker_log_color=False,
-)
+celery_app.conf.update(worker_hijack_root_logger=False)
 
 
-@app.task(name="scrap_results")
+# # Configure Celery to use the existing logger
+# celery_app.conf.update(
+#     worker_hijack_root_logger=False,  # Prevent Celery from hijacking the root logger
+#     worker_log_format="%(message)s",
+#     worker_task_log_format="%(task_name)s: %(message)s",
+# )
+#
+# # Ensure the logger configuration is passed to the workers
+# celery_app.conf.update(
+#     worker_redirect_stdouts_level='INFO',
+#     worker_log_color=False,
+# )
+
+@after_setup_logger.connect
+def setup_celery_logging(logger, **kwargs):
+    logger.info("Celery worker started")
+
+
+@celery_app.task(name="scrap_results")
 def scrap_save_search_results_worker(search_text: str, max_urls: int, use_cse_papi: bool, metadata):
     try:
         logger.info(f"Scrapping data. metadata: {str(metadata)}")
@@ -64,7 +72,7 @@ def scrap_save_search_results_worker(search_text: str, max_urls: int, use_cse_pa
                 update_task(session, task_id, status=TaskStatus.Failed)
 
 
-@app.task(name="download_images")
+@celery_app.task(name="download_images")
 def download_images_worker(images_url: list[str], metadata):
     try:
         logger.info(f"Scrapping data. metadata: {str(metadata)}")
@@ -79,7 +87,7 @@ def download_images_worker(images_url: list[str], metadata):
                 update_task(session, task_id, status=TaskStatus.Failed)
 
 
-@app.task(name="ocr")
+@celery_app.task(name="ocr")
 def ocr_worker(images_path: list[str], metadata):
     try:
         ocr_results = []

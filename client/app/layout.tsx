@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 import React from "react";
 import Image from "next/image";
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} `}>
+        <Toaster />
         <div className={"flex items-center gap-4"}>
           <Image
             src={"/assets/images/logo.png"}

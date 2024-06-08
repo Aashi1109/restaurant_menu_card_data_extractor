@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Table,
@@ -13,8 +14,10 @@ import { Bug } from "lucide-react";
 import TooltipWrapper from "@/components/TooltipWrapper";
 import { cn } from "@/lib/utils";
 import { ETaskStatus } from "@/enums";
+import { useRouter } from "next/navigation";
 
 const TaskTable: React.FC<{ tasks: ITask[] }> = ({ tasks }) => {
+  const router = useRouter();
   return (
     <Table>
       {/*<TableCaption>A list of your recent invoices.</TableCaption>*/}
@@ -30,7 +33,7 @@ const TaskTable: React.FC<{ tasks: ITask[] }> = ({ tasks }) => {
         {tasks.map((task, index) => (
           <TableRow key={task.id}>
             <TableCell className="font-medium">{index + 1}</TableCell>
-            <TableCell>{task.query}</TableCell>
+            <TableCell>{task.scrap_query}</TableCell>
             <TableCell>
               <TaskStatusBadge
                 text={task.status.valueOf()}
@@ -40,11 +43,17 @@ const TaskTable: React.FC<{ tasks: ITask[] }> = ({ tasks }) => {
             <TableCell className="text-right">
               <TooltipWrapper tooltipText={"View scrap results"}>
                 <Bug
-                  className={cn({
-                    "h-6 w-6 opacity-60": task.status !== ETaskStatus.Completed,
-                    "cursor-pointer opacity-100":
-                      task.status === ETaskStatus.Completed,
-                  })}
+                  onClick={() => {
+                    router.push(`/task/${task.id}`);
+                  }}
+                  className={cn(
+                    {
+                      // "h-6 w-6 opacity-60": task.status !== ETaskStatus.Completed,
+                      // "cursor-pointer opacity-100":
+                      // task.status === ETaskStatus.Completed,
+                    },
+                    "cursor-pointer"
+                  )}
                 />
               </TooltipWrapper>
             </TableCell>

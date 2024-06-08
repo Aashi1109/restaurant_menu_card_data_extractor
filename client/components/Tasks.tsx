@@ -1,15 +1,20 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import TaskTable from "@/components/TaskTable";
 import { ITask } from "@/types";
 import { fetchTasks } from "@/action";
 import { retryPromise } from "@/lib/helpers";
+import { jnstrparse } from "@/lib/utils";
 
 const Tasks = ({ tasks }: { tasks: ITask[] }) => {
+  const [tasksData, setTasksData] = useState(tasks);
   useEffect(() => {
     const intervalId = setInterval(async () => {
-      await retryPromise(fetchTasks());
+      const tasks = await fetchTasks();
+      if (tasks && tasks?.success) {
+        setTasksData(jnstrparse(tasks?.data));
+      }
     }, 2000);
 
     return () => {
@@ -18,10 +23,10 @@ const Tasks = ({ tasks }: { tasks: ITask[] }) => {
   }, []);
 
   return (
-    tasks.length && (
+    tasks?.length && (
       <div className={"flex flex-col gap-2 flex-1"}>
         <p>Recent scrap tasks</p>
-        <TaskTable tasks={tasks} />
+        <TaskTable tasks={tasksData} />
       </div>
     )
   );

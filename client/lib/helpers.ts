@@ -10,13 +10,13 @@ export const waitFor = (delay: number) => {
 
 export const retryPromise = async (
   promise: Promise<any>,
-  retryCount: number = config.MAX_REQUEST_RETRY,
+  retryCount: number = config.MAX_REQUEST_RETRY
 ) => {
   let _retryPromise: (_retryCount: number) => Promise<any>;
   _retryPromise = async (_retryCount: number) => {
     try {
       const result = await promise;
-      return await result.json();
+      return result;
     } catch (error) {
       console.error("Error resolving promise: ", error);
 

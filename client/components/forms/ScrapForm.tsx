@@ -8,6 +8,7 @@ import { createTask } from "@/action";
 import { retryPromise } from "@/lib/helpers";
 import { useToast } from "@/components/ui/use-toast";
 import { ICreateTaskResponse } from "@/types";
+import { config } from "@/config";
 
 const ScrapForm = ({ isTasksPresent }: { isTasksPresent: boolean }) => {
   const { toast } = useToast();
@@ -22,10 +23,14 @@ const ScrapForm = ({ isTasksPresent }: { isTasksPresent: boolean }) => {
       setIsSubmitting(true);
       try {
         const createScrapResult: ICreateTaskResponse = await retryPromise(
-          createTask(enteredQuery, 20),
+          createTask(enteredQuery, 20, config.USE_CSE_PAPI)
         );
 
         if (createScrapResult && createScrapResult?.success) {
+          if (inputRef.current) {
+            inputRef.current.value = "";
+          }
+
           toast({ title: "Scrap task created" });
         } else {
           toast({
@@ -46,11 +51,15 @@ const ScrapForm = ({ isTasksPresent }: { isTasksPresent: boolean }) => {
         setIsSubmitting(false);
       }
     } else {
-      toast({ title: "Please enter a search term" });
+      toast({ title: "Please enter a search term", variant: "destructive" });
     }
   };
   return (
-    <div className={cn("flex-center flex-1", { "max-h-60": isTasksPresent })}>
+    <div
+      className={cn("flex-center flex-1", {
+        "min-h-40 mt--6 max-h-60": isTasksPresent,
+      })}
+    >
       <form className="w-4/5 flex gap-4" onSubmit={handleSubmit}>
         <Input
           className={""}
