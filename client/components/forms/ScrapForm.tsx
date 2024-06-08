@@ -23,7 +23,7 @@ const ScrapForm = ({ isTasksPresent }: { isTasksPresent: boolean }) => {
       setIsSubmitting(true);
       try {
         const createScrapResult: ICreateTaskResponse = await retryPromise(
-          createTask(enteredQuery, 20, config.USE_CSE_PAPI)
+          createTask(enteredQuery, 20, config.USE_CSE_PAPI),
         );
 
         if (createScrapResult && createScrapResult?.success) {
@@ -56,8 +56,9 @@ const ScrapForm = ({ isTasksPresent }: { isTasksPresent: boolean }) => {
   };
   return (
     <div
-      className={cn("flex-center flex-1", {
-        "min-h-40 mt--6 max-h-60": isTasksPresent,
+      className={cn("flex-center flex-1 min-h-40", {
+        " max-h-60": isTasksPresent,
+        "mb-16": !isTasksPresent,
       })}
     >
       <form className="w-4/5 flex gap-4" onSubmit={handleSubmit}>

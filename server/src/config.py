@@ -15,15 +15,19 @@ config = {
 }
 
 try:
-    GOOGLE_CSE_ID = "e74ae2f61bea249ef"
-    GOOGLE_API_KEY = "AIzaSyDYgOOODO_MHGrV28sIRPdrQ9GIaZlX4dU"
-    TESSERACT_EXECUTABLE_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    LOG_LEVEL = "INFO"
+    DB_FILE_PATH = os.path.join(base_dir, "sqlite.db")
     LOG_PATH = os.path.join(base_dir, "logs")
-    TEMP_FOLDER_PATH = r"D:\Coding\internship\image_scrapper\temp"
-    SQLALCHEMY_DATABASE_URL = r"sqlite:///D:\Coding\internship\image_scrapper\server\src\tasks.db"
-    CELERY_BACKEND = 'redis://10.10.1.63:6379/0'
-    CELERY_BROKER = 'redis://10.10.1.63:6379/0'
+
+    GOOGLE_CSE_ID = config.get('GOOGLE_CSE_ID')
+    GOOGLE_API_KEY = config.get("GOOGLE_API_KEY")
+    TESSERACT_EXECUTABLE_PATH = config.get("TESSERACT_EXECUTABLE_PATH")
+    LOG_LEVEL = config.get("LOG_LEVEL") or "INFO"
+    TEMP_FOLDER_PATH = config.get("TEMP_FOLDER_PATH")
+    SQLALCHEMY_DATABASE_URL = fr"sqlite:///{DB_FILE_PATH}"
+    CELERY_BACKEND = config.get("CELERY_BACKEND") or 'redis://localhost:6379/0'
+    CELERY_BROKER = config.get("CELERY_BROKER") or 'redis://localhost:6379/0'
+    PORT = int(config.get("PORT") or 5000)
+    HOST = config.get("HOST")
 except Exception as e:
     print("Exception in loading variables", e)
     raise

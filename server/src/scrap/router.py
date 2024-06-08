@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
-from server.src.database import get_db
+from server.src.SessionLocal import get_db
 from server.src.logger import logger
 from server.src.scrap.crud import create_task, get_task_by_id, get_all_tasks
 from server.src.scrap.schemas import ScrapSubmitRequest, ScrapResponse, ScrapAllTasksResponse

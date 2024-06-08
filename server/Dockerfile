@@ -10,6 +10,10 @@ COPY requirements.txt /server
 
 RUN pip install --no-cache-dir --upgrade -r /server/requirements.txt
 
-COPY ./src /server
+COPY ./src ./src
 
-CMD ["python", "-m", "src/main.py"]
+COPY entrypoint.sh /server/entrypoint.sh
+
+RUN chmod +x /server/entrypoint.sh
+
+ENTRYPOINT ["entrypoint.sh"]

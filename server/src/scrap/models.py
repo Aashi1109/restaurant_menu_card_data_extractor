@@ -5,7 +5,7 @@ from server.src.scrap.enums import TaskStatus
 
 
 class Task(Base):
-    __tablename__ = 'task'
+    __tablename__ = 'Task'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     scrap_query = Column(String, nullable=False)

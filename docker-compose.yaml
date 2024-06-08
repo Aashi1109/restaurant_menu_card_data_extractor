@@ -1,0 +1,23 @@
+services:
+  scrapify-client:
+    #    build:
+    #      context: D:\Coding\internship\restaurant_menu_card_data_extractor\client
+    image: aashishpal09/scrapify-client
+    container_name: scrapify-client
+    env_file:
+      - D:\Coding\internship\restaurant_menu_card_data_extractor\client\.env
+    ports:
+      - "3000:3000"
+
+
+  scrapify-server:
+    build:
+      context: D:\Coding\internship\restaurant_menu_card_data_extractor\server
+    image: aashishpal09/scrapify-server
+    container_name: scrapify-server
+    ports:
+      - "5000:5000"
+    env_file:
+      - D:\Coding\internship\restaurant_menu_card_data_extractor\server\src\.env
+    volumes:
+      - ./logs:/server/src/logs

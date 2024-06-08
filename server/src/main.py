@@ -4,7 +4,8 @@ from fastapi.exceptions import RequestValidationError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from server.src.database import Base, engine
+from server.src.config import HOST, PORT
+from server.src.database import init_db
 from server.src.exceptions.CustomError import CustomError
 from server.src.logger import logger
 from server.src.scrap.router import router as scrap_router
@@ -15,8 +16,7 @@ class FastAPIServer:
         try:
             self.app = FastAPI()
 
-            # initialize all tables
-            Base.metadata.create_all(bind=engine)
+            init_db()
             self.app.include_router(router=scrap_router, tags=["Scrap Task Manager"])
             self.__exception_middlewares()
         except Exception as e:
@@ -55,4 +55,4 @@ class FastAPIServer:
 if __name__ == '__main__':
     fastapi_server = FastAPIServer()
     logger.info("Server running ⚡⚡ at port 5000")
-    fastapi_server.run("localhost", 5000)
+    fastapi_server.run(HOST, PORT)

@@ -14,6 +14,7 @@ custom_config = "--oem 3 --psm 6"
 
 def perform_ocr(image_path: str):
     try:
+        logger.info(f"Performing OCR on {image_path}")
         if not (image_path and os.path.exists(image_path)):
             return ""
         else:
@@ -21,6 +22,7 @@ def perform_ocr(image_path: str):
             gray_image = get_grayscale(image)
             threshold = thresholding(gray_image)
             ocr_results = pytesseract.image_to_string(threshold, config=custom_config)
+            logger.info(f"OCR results: {ocr_results}")
             return ocr_results
     except Exception as e:
         logger.error(f"Error performing OCR {str(e)}", exc_info=True)
