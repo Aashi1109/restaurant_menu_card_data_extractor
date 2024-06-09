@@ -2,7 +2,7 @@
 
 import { config } from "@/config";
 
-export const fetchTaskById = async (taskId: string) => {
+export const fetchTaskById = async (taskId: number) => {
   const url = config.SCRAPER_API_URL + `/scrap/${taskId}`;
 
   const response = await fetch(url);
@@ -20,7 +20,7 @@ export const fetchTasks = async () => {
 export const createTask = async (
   query: string,
   max_results: number,
-  use_cse_papi: boolean
+  use_cse_papi: boolean,
 ) => {
   const url = config.SCRAPER_API_URL + `/scrap/new`;
 

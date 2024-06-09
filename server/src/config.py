@@ -29,5 +29,5 @@ try:
     PORT = int(config.get("PORT") or 5000)
     HOST = config.get("HOST")
 except Exception as e:
-    print("Exception in loading variables", e)
+    logger.error("Exception in loading variables", e)
     raise

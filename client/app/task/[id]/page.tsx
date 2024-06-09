@@ -9,12 +9,12 @@ import TaskStatusBadge from "@/components/TaskStatusBadge";
 import { ETaskStatus } from "@/enums";
 import { Textarea } from "@/components/ui/textarea";
 
-const Page = async ({ params }: { params: any }) => {
+const Page = async ({ params }: { params: { id: number } }) => {
   //   fetch task from id
   const taskId = params?.id;
 
   let taskData: ITaskByIdAPIResponse = await retryPromise(
-    fetchTaskById(taskId)
+    fetchTaskById(taskId),
   );
 
   const isTaskDataPresent = taskData && taskData?.success;

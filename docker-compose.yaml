@@ -1,7 +1,7 @@
 services:
   scrapify-client:
-    #    build:
-    #      context: D:\Coding\internship\restaurant_menu_card_data_extractor\client
+    build:
+      context: D:\Coding\internship\restaurant_menu_card_data_extractor\client
     image: aashishpal09/scrapify-client
     container_name: scrapify-client
     env_file:
@@ -18,6 +18,15 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - D:\Coding\internship\restaurant_menu_card_data_extractor\server\src\.env
+      - D:\Coding\internship\restaurant_menu_card_data_extractor\server\src\.env.prod
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    healthcheck:
+      test: [ "CMD", "curl","-f","http://localhost:5000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
-      - ./logs:/server/src/logs
+      - ./logs:/app/server/src/logs

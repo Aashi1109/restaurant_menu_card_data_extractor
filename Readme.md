@@ -55,6 +55,12 @@ Before running make sure env is activated
 source ./<env path>/bin/activate
 ```
 
+To start the fastapi application use the following command or you can use any IDE of your choice to run the application.
+
+```shell
+python -m server.src.main
+```
+
 ### Client
 
 Navigate to client directory and execute below commands

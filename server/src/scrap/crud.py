@@ -7,6 +7,14 @@ from server.src.scrap.models import Task
 
 
 def create_task(db: Session, scrap_query, scrap_data=None, status=TaskStatus.InProgress):
+    """
+    Creates a new task in the  database with provided params
+    :param db: Database connection
+    :param scrap_query: Query of the task
+    :param scrap_data: Scrap data if available
+    :param status: Task status
+    :return: Newly created task
+    """
     try:
         new_task = Task(
             scrap_query=scrap_query,
@@ -24,6 +32,12 @@ def create_task(db: Session, scrap_query, scrap_data=None, status=TaskStatus.InP
 
 
 def get_task_by_id(db: Session, task_id):
+    """
+    Fetches a task by its ID from the database.
+    :param db: Database connection
+    :param task_id: ID of the task to fetch
+    :return: Task object if found, else None
+    """
     try:
         return db.query(Task).filter(Task.id == task_id).first()
     except SQLAlchemyError as e:
@@ -32,6 +46,11 @@ def get_task_by_id(db: Session, task_id):
 
 
 def get_all_tasks(db: Session):
+    """
+    Fetches all tasks from the database.
+    :param db: Database connection
+    :return: List of all tasks if available, else an empty list
+    """
     try:
         return db.query(Task).all()
     except SQLAlchemyError as e:
@@ -40,6 +59,15 @@ def get_all_tasks(db: Session):
 
 
 def update_task(db: Session, task_id, scrap_query=None, scrap_data=None, status=None):
+    """
+    Updates a task in the database with the provided parameters.
+    :param db: Database connection
+    :param task_id: ID of the task to update
+    :param scrap_query: New query for the task
+    :param scrap_data: New scrap data for the task
+    :param status: New status for the task
+    :return: Updated task object if successful, else None
+    """
     try:
         task = db.query(Task).filter(Task.id == task_id).first()
         if not task:
@@ -59,6 +87,12 @@ def update_task(db: Session, task_id, scrap_query=None, scrap_data=None, status=
 
 
 def delete_task(db: Session, task_id):
+    """
+    Deletes a task from the database.
+    :param db: Database connection
+    :param task_id: ID of the task to delete
+    :return: Deleted task object if successful, else None
+    """
     try:
         task = db.query(Task).filter(Task.id == task_id).first()
         if not task:

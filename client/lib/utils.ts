@@ -30,7 +30,9 @@ export function formatISODate(isoString: string) {
     hour12: true,
   };
 
+  // @ts-ignore
   const datePart = date.toLocaleDateString("en-US", dateOptions);
+  // @ts-ignore
   const timePart = date.toLocaleTimeString("en-US", timeOptions);
 
   return `${datePart} at ${timePart}`;

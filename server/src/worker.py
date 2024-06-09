@@ -1,14 +1,14 @@
+import os
+
 from celery import Celery
 
-from server.src.SessionLocal import get_db_context
 from server.src.config import TEMP_FOLDER_PATH, CELERY_BACKEND, CELERY_BROKER
 from server.src.logger import logger
 from server.src.ocr.ocr import perform_ocr
-from server.src.scrap.crud import update_task
 from server.src.scrap.enums import TaskStatus
 from server.src.scrap.helpers import (
     google_image_search_using_selenium, save_images_from_url,
-    google_search_using_cse_papi,
+    google_search_using_cse_papi, update_task_from_metadata,
 )
 from server.src.scrap.utils import filter_cse_images_results
 
@@ -18,36 +18,37 @@ celery_app = Celery(
     backend=CELERY_BACKEND
 )
 
-celery_app.conf.update(worker_hijack_root_logger=False)
+celery_app.conf.update(worker_hijack_root_logger=True)
 
+celery_app.conf.broker_transport_options = {
+    'retry_policy': {
+        'timeout': 5.0
+    }
+}
+celery_app.conf.result_backend_transport_options = {
+    'retry_policy': {
+        'timeout': 5.0
+    },
 
-# # Configure Celery to use the existing logger
-# celery_app.conf.update(
-#     # worker_hijack_root_logger=False,  # Prevent Celery from hijacking the root logger
-#     worker_log_format="%(message)s",
-#     worker_task_log_format="%(task_name)s: %(message)s",
-# )
-#
-# # Ensure the logger configuration is passed to the workers
-# celery_app.conf.update(
-#     worker_redirect_stdouts_level='INFO',
-#     worker_log_color=False,
-# )
+}
 
-
-# @after_setup_logger.connect
-# def setup_celery_logging(logger, **kwargs):
-#     logger.info("Celery worker started")
+celery_app.conf.broker_connection_retry_on_startup = True
 
 
 @celery_app.task(name="scrap_results")
 def scrap_save_search_results_worker(search_text: str, max_urls: int, use_cse_papi: bool, metadata):
+    """
+    Performs scraping of search results, downloads images, performs OCR on them, and updates task status accordingly.
+    :param search_text: Text to search for
+    :param max_urls: Maximum number of URLs to fetch
+    :param use_cse_papi: Flag indicating whether to use CSE PAPI for search
+    :param metadata: Additional metadata for the task
+    """
     try:
         logger.info(f"Scrapping data. metadata: {str(metadata)}")
         scraped_images_url = []
         if use_cse_papi:
             search_results = google_search_using_cse_papi(search_text, max_urls)
-
             filtered_results = filter_cse_images_results(search_results)
             scraped_images_url = [x['link'] for x in filtered_results]
         else:
@@ -63,25 +64,27 @@ def scrap_save_search_results_worker(search_text: str, max_urls: int, use_cse_pa
         logger.info(f"OCR results extracted: {ocr_results}")
 
         if ocr_results:
-            if "db" in metadata:
-                task_id = metadata["db"]["id"]
-                scrap_data = "\n\n\n".join(ocr_results)
-                logger.info("Updating task status to completed after successfully extracting text from images")
-                with get_db_context() as session:
-                    update_task(session, task_id, scrap_data=scrap_data, status=TaskStatus.Completed)
+            scrap_data = "\n\n\n".join(ocr_results)
+            update_task_from_metadata(metadata, TaskStatus.Completed, scrap_data)
+
+            # remove downloaded files
+            logger.info(f"Removing downloaded images")
+            for image_path in saved_images_path:
+                if image_path: os.remove(image_path)
+
     except Exception as e:
         logger.error(f"Error scraping data: {str(e)}", exc_info=True)
         #  update status of task as failed
-        if "db" in metadata:
-            task_id = metadata["db"]["id"]
-            logger.warning("Task failed updating task status to failed")
-
-            with get_db_context() as session:
-                update_task(session, task_id, status=TaskStatus.Failed)
+        update_task_from_metadata(metadata, task_status=TaskStatus.Failed)
 
 
 @celery_app.task(name="download_images")
 def download_images_worker(images_url: list[str], metadata):
+    """
+    Downloads images from provided URLs and updates task status accordingly.
+    :param images_url: List of URLs of images to download
+    :param metadata: Additional metadata for the task
+    """
     try:
         logger.info(f"Downloading images metadata: {str(metadata)}")
 
@@ -89,15 +92,16 @@ def download_images_worker(images_url: list[str], metadata):
     except Exception as e:
         logger.error(f"Error scraping data: {str(e)}", exc_info=True)
         #  update status of task as failed
-        if "db" in metadata:
-            task_id = metadata["db"]["id"]
-            logger.warning("Task failed updating task status to failed")
-            with get_db_context() as session:
-                update_task(session, task_id, status=TaskStatus.Failed)
+        update_task_from_metadata(metadata, task_status=TaskStatus.Failed)
 
 
 @celery_app.task(name="ocr")
 def ocr_worker(images_path: list[str], metadata):
+    """
+    Performs OCR on downloaded images and updates task status accordingly.
+    :param images_path: List of paths to downloaded images
+    :param metadata: Additional metadata for the task
+    """
     try:
         logger.info(f"Performing OCR on downloaded images metadata: {str(metadata)}")
         ocr_results = []
@@ -110,8 +114,4 @@ def ocr_worker(images_path: list[str], metadata):
         return ocr_results
     except Exception as e:
         logger.error(f"Error scraping data: {str(e)}", exc_info=True)
-        if "db" in metadata:
-            task_id = metadata["db"]["id"]
-            logger.warning("Task failed updating task status to failed")
-            with get_db_context() as session:
-                update_task(session, task_id, status=TaskStatus.Failed)
+        update_task_from_metadata(metadata, task_status=TaskStatus.Failed)

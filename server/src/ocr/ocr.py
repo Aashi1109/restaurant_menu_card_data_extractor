@@ -13,6 +13,11 @@ custom_config = "--oem 3 --psm 6"
 
 
 def perform_ocr(image_path: str):
+    """
+    Performs OCR on an image and returns the results as a string.
+    :param image_path: Image path to perform OCR on
+    :return: OCR results as a string
+    """
     try:
         logger.info(f"Performing OCR on {image_path}")
         if not (image_path and os.path.exists(image_path)):

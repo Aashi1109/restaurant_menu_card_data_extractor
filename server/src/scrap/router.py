@@ -11,7 +11,7 @@ from server.src.worker import scrap_save_search_results_worker
 router = APIRouter()
 
 
-@router.post("/scrap/new", response_model=ScrapResponse)
+@router.post("/scrap/new", response_model=ScrapResponse, status_code=201)
 async def create_new_scrap(req: Request, _data: ScrapSubmitRequest, db: Session = Depends(get_db)):
     try:
         logger.info(f"Request received url: {str(req.url)}, req body: {str(_data.model_dump())}")
