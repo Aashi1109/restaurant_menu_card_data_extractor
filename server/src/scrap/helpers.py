@@ -76,7 +76,7 @@ def google_image_search_using_selenium(query: str, num_images: int):
         return list(set(image_urls))
     except Exception as e:
         logger.error(f"Error: {e}")
-        return []
+        raise
     finally:
         if driver:
             driver.quit()
@@ -99,9 +99,8 @@ def save_images_from_url(images_url: list[str], temp_folder_path: str):
                 continue
 
         return file_saved_paths
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        return []
+    except Exception:
+        raise
 
 
 def get_uuid4():
@@ -138,8 +137,8 @@ def save_image_from_url(image_url: str, save_folder_path: str, stream_save=True,
             return file_path
         else:
             logger.warning(f"Failed to retrieve image. HTTP Status code: {response.status_code}")
-    except Exception as e:
-        logger.error(f"An error occurred: {e}", exc_info=True)
+    except Exception:
+        raise
 
 
 def google_search_using_cse_papi(search_query: str, max_links: int, start: int = 1, collected_links: list = None):

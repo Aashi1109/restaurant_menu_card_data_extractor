@@ -4,8 +4,8 @@ from starlette.requests import Request
 
 from server.src.SessionLocal import get_db
 from server.src.logger import logger
-from server.src.scrap.crud import create_task, get_task_by_id, get_all_tasks
-from server.src.scrap.schemas import ScrapSubmitRequest, ScrapResponse, ScrapAllTasksResponse
+from server.src.scrap.crud import create_task, get_task_by_id, get_all_tasks, delete_task, update_task
+from server.src.scrap.schemas import ScrapSubmitRequest, ScrapResponse, ScrapAllTasksResponse, TaskUpdateRequest
 from server.src.worker import scrap_save_search_results_worker
 
 router = APIRouter()
@@ -33,7 +33,7 @@ async def create_new_scrap(req: Request, _data: ScrapSubmitRequest, db: Session 
         )
 
     except Exception as e:
-        logger.error(f"Error submitting data {e}", exc_info=True)
+        logger.error(f"Error creating task {e}", exc_info=True)
 
 
 @router.get("/scrap/tasks", response_model=ScrapAllTasksResponse)
@@ -52,7 +52,7 @@ async def get_all_tasks_handler(req: Request, db: Session = Depends(get_db)):
         )
 
     except Exception as e:
-        logger.error(f"Error submitting data {e}", exc_info=True)
+        logger.error(f"Error getting tasks data {e}", exc_info=True)
 
 
 @router.get("/scrap/{task_id}", response_model=ScrapResponse)
@@ -69,4 +69,39 @@ async def get_scrap_status(req: Request, task_id: int, db: Session = Depends(get
         )
 
     except Exception as e:
-        logger.error(f"Error submitting data {e}", exc_info=True)
+        logger.error(f"Error getting data for task {e}", exc_info=True)
+
+
+@router.delete("/scrap/{task_id}", response_model=ScrapResponse)
+async def delete_task_handler(req: Request, task_id: int, db: Session = Depends(get_db)):
+    try:
+        logger.info(f"Request received url: {str(req.url)}, req body: {str(req.query_params)}")
+
+        existing_task = delete_task(db, task_id)
+        if not existing_task:
+            return ScrapResponse(success=False, message="Task not found with provided id", data=None)
+
+        return ScrapResponse(
+            success=True, message="Task delete successfully", data=existing_task.to_dict()
+        )
+
+    except Exception as e:
+        logger.error(f"Error deleting task data {e}", exc_info=True)
+
+
+@router.patch("/scrap/{task_id}", response_model=ScrapResponse)
+async def update_task_handler(req: Request, task_id: int, _data: TaskUpdateRequest, db: Session = Depends(get_db)):
+    try:
+        logger.info(
+            f"Request received url: {str(req.url)}, req data params: {str(req.query_params)} body: {str(req.body)}")
+
+        updated_task = update_task(db, task_id, scrap_data=_data.scrap_result, status=_data.status)
+        if not updated_task:
+            return ScrapResponse(success=False, message="Task not found with provided id", data=None)
+
+        return ScrapResponse(
+            success=True, message="Task updated successfully", data=updated_task.to_dict()
+        )
+
+    except Exception as e:
+        logger.error(f"Error updating task data {e}", exc_info=True)

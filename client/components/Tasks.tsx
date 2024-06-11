@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import TaskTable from "@/components/TaskTable";
 import { ITask } from "@/types";
 import { fetchTasks } from "@/action";
-import { retryPromise } from "@/lib/helpers";
-import { jnstrparse } from "@/lib/utils";
+import { jnstringify } from "@/lib/utils";
+import { config } from "@/config";
 
 const Tasks = ({ tasks }: { tasks: ITask[] }) => {
   const [tasksData, setTasksData] = useState(tasks);
@@ -13,9 +13,17 @@ const Tasks = ({ tasks }: { tasks: ITask[] }) => {
     const intervalId = setInterval(async () => {
       const tasks = await fetchTasks();
       if (tasks && tasks?.success) {
-        setTasksData(jnstrparse(tasks?.data));
+        const newData = tasks?.data;
+        // Debugging: Log new data and current state for comparison
+
+        // Compare newData with the current state
+        const doChangeState = jnstringify(newData) != jnstringify(tasksData);
+
+        if (newData && doChangeState) {
+          setTasksData(newData);
+        }
       }
-    }, 2000);
+    }, config.TASK_FETCH_INTERVAL);
 
     return () => {
       clearInterval(intervalId);
@@ -23,12 +31,10 @@ const Tasks = ({ tasks }: { tasks: ITask[] }) => {
   }, []);
 
   return (
-    tasks?.length && (
-      <div className={"flex flex-col gap-2 flex-1"}>
-        <p>Recent scrap tasks</p>
-        <TaskTable tasks={tasksData} />
-      </div>
-    )
+    <div className={"flex flex-col gap-2 flex-1"}>
+      <p>Recent scrap tasks</p>
+      <TaskTable tasks={tasksData} />
+    </div>
   );
 };
 

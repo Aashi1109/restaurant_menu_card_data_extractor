@@ -4,6 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from server.src import __title__, __version__, __description__
 from server.src.config import HOST, PORT
 from server.src.database import init_db
 from server.src.exceptions.CustomError import CustomError
@@ -14,13 +15,23 @@ from server.src.scrap.router import router as scrap_router
 class FastAPIServer:
     def __init__(self):
         try:
-            self.app = FastAPI()
+            self.app = FastAPI(title=__title__, version=__version__, description=__description__)
 
             init_db()
+
+            self.__add_health_check()
             self.app.include_router(router=scrap_router, tags=["Scrap Task Manager"])
             self.__exception_middlewares()
         except Exception as e:
             logger.error(str(e), exc_info=True)
+
+    def __add_health_check(self):
+        @self.app.get("/healthz")
+        def healthcheck():
+            return JSONResponse(
+                content={"name": __title__, "version": __version__, "message": f"Server is healthy", "status": "ok", },
+                status_code=200
+            )
 
     def __exception_middlewares(self):
         @self.app.exception_handler(RequestValidationError)

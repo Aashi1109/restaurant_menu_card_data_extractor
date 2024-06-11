@@ -13,7 +13,12 @@ export default async function Home() {
       <ScrapForm isTasksPresent={isTaskDataPresent} />
 
       {/* task results */}
-      {isTaskDataPresent && <Tasks tasks={parsedTaskData?.data} />}
+      <Tasks tasks={parsedTaskData?.data} />
     </div>
   );
 }
+
+// to fix fetch failed errors while building docker image
+// export const dynamic = "force-dynamic";
+
+export const runtime = "edge";

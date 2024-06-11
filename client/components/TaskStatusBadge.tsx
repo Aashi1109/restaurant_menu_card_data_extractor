@@ -27,7 +27,7 @@ const TaskStatusBadge = ({
         className={cn("ml-2 top-[-14px] right-[-10px] w-2 h-2 rounded-full", {
           "bg-orange-300 animate-pulse": status === ETaskStatus.InProgress,
           "bg-green-600 dark:bg-green-400": status === ETaskStatus.Completed,
-          "bg-red-300": status === ETaskStatus.Failed,
+          "bg-red-500": status === ETaskStatus.Failed,
         })}
       />
     </Badge>

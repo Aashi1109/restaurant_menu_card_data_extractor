@@ -21,6 +21,9 @@
 - ENV variables required for client
     - SCRAPER_API_URL
     - USE_CSE_PAPI
+    - HOSTNAME
+    - TASK_FETCH_INTERVAL
+    - PORT
 - ENV variables required for server
     - GOOGLE_CSE_ID
     - GOOGLE_API_KEY
@@ -28,7 +31,6 @@
     - CELERY_BROKER
     - PORT
     - HOST
-    - TESSERACT_EXECUTABLE_PATH
     - LOG_LEVEL
     - TEMP_FOLDER_PATH
 - After passing the environment variables execute this command
@@ -37,7 +39,9 @@
 docker compose up
 ```
 
-- `Ensure that docker is installed on your system`
+- `Ensure that docker is installed on your system and redis is running`
+- `Celery uses redis as backend and broker`
+- `SQLite is local so it gets reset after restart of service.`
 
 ## Development usage
 
@@ -46,7 +50,7 @@ docker compose up
 From root folder of project run this command to start celery workers
 
 ```shell
-celery -A server.src.worker.celery_app worker -f celery.logs -E --pool=solo
+celery -A server.src.worker.celery_app worker -f <log paths for celery logs> -E --pool=solo
 ```
 
 Before running make sure env is activated

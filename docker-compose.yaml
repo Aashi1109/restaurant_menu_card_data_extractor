@@ -2,21 +2,25 @@ services:
   scrapify-client:
     build:
       context: D:\Coding\internship\restaurant_menu_card_data_extractor\client
-    image: aashishpal09/scrapify-client
+      args:
+        API_URL: http://127.0.0.1:5001
+    image: aashishpal09/scrapify-client:1.0.0
     container_name: scrapify-client
     env_file:
-      - D:\Coding\internship\restaurant_menu_card_data_extractor\client\.env
+      - D:\Coding\internship\restaurant_menu_card_data_extractor\client\.env.prod
     ports:
-      - "3000:3000"
-
+      - "3001:3001"
+    depends_on:
+      scrapify-server:
+        condition: service_healthy
 
   scrapify-server:
     build:
       context: D:\Coding\internship\restaurant_menu_card_data_extractor\server
-    image: aashishpal09/scrapify-server
+    image: aashishpal09/scrapify-server:1.0.0
     container_name: scrapify-server
     ports:
-      - "5000:5000"
+      - "5001:5001"
     env_file:
       - D:\Coding\internship\restaurant_menu_card_data_extractor\server\src\.env.prod
     depends_on:
@@ -24,9 +28,10 @@ services:
         condition: service_healthy
 
     healthcheck:
-      test: [ "CMD", "curl","-f","http://localhost:5000" ]
+      test: [ "CMD-SHELL", "curl -f http://localhost:5001/healthz || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
     volumes:
       - ./logs:/app/server/src/logs

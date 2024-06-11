@@ -1,4 +1,5 @@
 import { config } from "@/config";
+import React from "react";
 
 export const waitFor = (delay: number) => {
   return new Promise((resolve, reject) => {
@@ -10,13 +11,12 @@ export const waitFor = (delay: number) => {
 
 export const retryPromise = async (
   promise: Promise<any>,
-  retryCount: number = config.MAX_REQUEST_RETRY
+  retryCount: number = config.MAX_REQUEST_RETRY,
 ) => {
   let _retryPromise: (_retryCount: number) => Promise<any>;
   _retryPromise = async (_retryCount: number) => {
     try {
-      const result = await promise;
-      return result;
+      return await promise;
     } catch (error) {
       console.error("Error resolving promise: ", error);
 
@@ -35,4 +35,10 @@ export const retryPromise = async (
   };
 
   return _retryPromise(retryCount);
+};
+
+export const toggleDisableRefState = (ref: React.RefObject<any>) => {
+  if (ref.current) {
+    ref.current.disabled = !ref.current.disabled;
+  }
 };

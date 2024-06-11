@@ -20,27 +20,22 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Python dependencies
 COPY requirements.txt /app
-
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
+# Copy application files
 COPY entrypoint.sh /app/entrypoint.sh
-
-RUN mkdir -p /server/src/logs
-
-RUN mkdir -p /server/src/temp
-
 COPY src /app/server/src
 
-# Change ownership of the application directory
-RUN chown -R appuser:appuser /app /server
+# Create directories and set permissions
+RUN mkdir -p /app/server/src/logs /app/temp \
+    && chown -R appuser:appuser /app /app/temp
 
-USER root
-
+# Switch to the non-root user
 USER appuser
 
+# Make entrypoint script executable
 RUN chmod +x /app/entrypoint.sh
-
-EXPOSE 5000
 
 ENTRYPOINT ["/app/entrypoint.sh"]

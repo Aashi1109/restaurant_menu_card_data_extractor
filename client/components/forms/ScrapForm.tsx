@@ -9,6 +9,7 @@ import { retryPromise } from "@/lib/helpers";
 import { useToast } from "@/components/ui/use-toast";
 import { ICreateTaskResponse } from "@/types";
 import { config } from "@/config";
+import { Loader2 } from "lucide-react";
 
 const ScrapForm = ({ isTasksPresent }: { isTasksPresent: boolean }) => {
   const { toast } = useToast();
@@ -61,13 +62,23 @@ const ScrapForm = ({ isTasksPresent }: { isTasksPresent: boolean }) => {
         "mb-16": !isTasksPresent,
       })}
     >
-      <form className="w-4/5 flex gap-4" onSubmit={handleSubmit}>
+      <form
+        className="w-full sm:w-4/5 flex flex-col sm:flex-row gap-4"
+        onSubmit={handleSubmit}
+      >
         <Input
           className={""}
           placeholder={"Enter search query ..."}
           ref={inputRef}
         />
-        <Button disabled={isSubmitting}>Scrap images</Button>
+        <div className={"flex-center"}>
+          <Button disabled={isSubmitting}>
+            {isSubmitting && (
+              <Loader2 className={"animate-spin h-4 w-4 mr-1"} />
+            )}
+            Scrap images
+          </Button>
+        </div>
       </form>
     </div>
   );

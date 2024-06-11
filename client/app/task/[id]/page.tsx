@@ -17,6 +17,8 @@ const Page = async ({ params }: { params: { id: number } }) => {
     fetchTaskById(taskId),
   );
 
+  // console.log(`taskData -> ${jnstringify(taskData)}`);
+
   const isTaskDataPresent = taskData && taskData?.success;
 
   const renderInputsBasedOnField = (fieldName: string, value: string) => {
@@ -69,3 +71,14 @@ const Page = async ({ params }: { params: { id: number } }) => {
 };
 
 export default Page;
+
+// to fix fetch failed errors while building docker image
+// export const dynamic = "force-dynamic";
+export const runtime = "edge";
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const id = params.id;
+  return {
+    title: `Scrapify | Task #${id}`,
+  };
+}
